@@ -1,0 +1,140 @@
+/* ─────────────────────────────────────────────
+   Weather Dashboard — Custom Styles
+   Glassmorphism, dynamic backgrounds, utilities
+───────────────────────────────────────────── */
+
+/* Glassmorphism utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-strong {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Dynamic weather backgrounds */
+body {
+  transition: background 1.2s ease;
+  min-height: 100vh;
+}
+
+body.bg-clear {
+  background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 40%, #0ea5e9 70%, #38bdf8 100%);
+}
+
+body.bg-clouds {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 40%, #475569 70%, #64748b 100%);
+}
+
+body.bg-rain {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #1e40af 70%, #3b82f6 100%);
+}
+
+body.bg-drizzle {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2563eb 100%);
+}
+
+body.bg-thunderstorm {
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+}
+
+body.bg-snow {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 40%, #94a3b8 70%, #e2e8f0 100%);
+}
+
+body.bg-mist,
+body.bg-fog,
+body.bg-haze {
+  background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #6b7280 100%);
+}
+
+body.bg-default {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+/* Light mode overrides for body gradients (softer) */
+html:not(.dark) body.bg-clear {
+  background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 40%, #38bdf8 70%, #0ea5e9 100%);
+}
+
+html:not(.dark) body.bg-clouds {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 40%, #94a3b8 100%);
+}
+
+html:not(.dark) body.bg-rain {
+  background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 40%, #60a5fa 100%);
+}
+
+html:not(.dark) body.bg-drizzle {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+}
+
+html:not(.dark) body.bg-thunderstorm {
+  background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 40%, #818cf8 100%);
+}
+
+html:not(.dark) body.bg-snow {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 40%, #cbd5e1 100%);
+}
+
+html:not(.dark) body.bg-mist,
+html:not(.dark) body.bg-fog,
+html:not(.dark) body.bg-haze {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 50%, #9ca3af 100%);
+}
+
+html:not(.dark) body.bg-default {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+/* Forecast horizontal scrollbar */
+.forecast-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.forecast-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.forecast-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* Toast animation */
+.toast {
+  animation: slideUp 0.35s ease-out;
+}
+
+/* Search input focus ring */
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.5);
+}
+
+/* Prevent flash of wrong theme */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Spinner border helper (Tailwind doesn't have border-3 by default) */
+.border-3 {
+  border-width: 3px;
+}

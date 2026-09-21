@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Dashboard</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.4s ease-out',
+            'pulse-soft': 'pulseSoft 2s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(12px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            pulseSoft: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.7' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-default font-sans text-slate-100 antialiased transition-colors duration-500">
+  <!-- Toast container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="glass-strong rounded-2xl p-6 w-full max-w-md shadow-2xl animate-slide-up">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          Settings
+        </h2>
+        <button id="close-settings" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors" aria-label="Close settings">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label for="api-key-input" class="block text-sm font-medium text-slate-300 mb-1.5">
+            OpenWeatherMap API Key
+          </label>
+          <input
+            type="password"
+            id="api-key-input"
+            placeholder="Enter your API key"
+            class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400/50 transition"
+            autocomplete="off"
+          />
+          <p class="mt-1.5 text-xs text-slate-400">
+            Get a free key at
+            <a href="https://openweathermap.org/api" target="_blank" rel="noopener" class="text-sky-400 hover:underline">openweathermap.org</a>
+          </p>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-slate-300">Dark Mode</span>
+          <button
+            id="theme-toggle"
+            class="relative w-12 h-6 rounded-full bg-white/15 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400/50"
+            aria-label="Toggle dark mode"
+          >
+            <span id="theme-toggle-knob" class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200"></span>
+          </button>
+        </div>
+        <button
+          id="save-settings"
+          class="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-medium transition-colors flex items-center justify-center gap-2"
+        >
+          <i data-lucide="check" class="w-4 h-4"></i>
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-30 glass border-b border-white/10">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/20 flex items-center justify-center">
+            <i data-lucide="cloud-sun" class="w-5 h-5 text-sky-300"></i>
+          </div>
+          <h1 class="text-lg font-semibold tracking-tight hidden sm:block">Weather</h1>
+        </div>
+
+        <!-- Search -->
+        <form id="search-form" class="flex-1 max-w-md flex items-center gap-2">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+            <input
+              type="text"
+              id="city-input"
+              placeholder="Search city..."
+              class="search-input w-full pl-10 pr-4 py-2 rounded-xl bg-white/10 border border-white/15 text-sm text-white placeholder-slate-400 transition"
+              autocomplete="off"
+              aria-label="Search city"
+            />
+          </div>
+          <button
+            type="submit"
+            class="p-2 rounded-xl bg-sky-500/80 hover:bg-sky-400 text-white transition-colors shrink-0"
+            aria-label="Search"
+          >
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </button>
+          <button
+            type="button"
+            id="geo-btn"
+            class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition-colors shrink-0"
+            title="Use my location"
+            aria-label="Use my location"
+          >
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <button
+          id="open-settings"
+          class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition-colors shrink-0"
+          aria-label="Open settings"
+        >
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-6 sm:py-8">
+      <!-- Loading state -->
+      <div id="loading" class="hidden flex flex-col items-center justify-center py-24 gap-4">
+        <div class="w-12 h-12 border-3 border-sky-400/30 border-t-sky-400 rounded-full animate-spin"></div>
+        <p class="text-slate-300 text-sm">Fetching weather...</p>
+      </div>
+
+      <!-- Empty / welcome state -->
+      <div id="welcome" class="flex flex-col items-center justify-center py-16 sm:py-24 text-center animate-fade-in">
+        <div class="w-20 h-20 rounded-2xl glass-strong flex items-center justify-center mb-6">
+          <i data-lucide="cloud-sun" class="w-10 h-10 text-sky-300"></i>
+        </div>
+        <h2 class="text-2xl font-semibold mb-2">Weather Dashboard</h2>
+        <p class="text-slate-300 max-w-sm mb-6 text-sm leading-relaxed">
+          Search for a city or use your current location to see live weather and a 5-day forecast.
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <button
+            id="welcome-geo"
+            class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            Use My Location
+          </button>
+          <button
+            id="welcome-settings"
+            class="px-5 py-2.5 rounded-xl glass hover:bg-white/15 text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            <i data-lucide="key" class="w-4 h-4"></i>
+            Set API Key
+          </button>
+        </div>
+      </div>
+
+      <!-- Weather content (hidden until data loads) -->
+      <div id="weather-content" class="hidden space-y-6 animate-fade-in">
+        <!-- Current weather card -->
+        <section class="glass-strong rounded-3xl p-6 sm:p-8 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+            <div>
+              <div class="flex items-center gap-2 text-slate-300 text-sm mb-1">
+                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                <span id="location-name">—</span>
+              </div>
+              <p id="local-time" class="text-xs text-slate-400 mb-4">—</p>
+              <div class="flex items-end gap-3">
+                <span id="temp-main" class="text-6xl sm:text-7xl font-light tracking-tighter">—°</span>
+                <div class="pb-2">
+                  <p id="condition-main" class="text-lg font-medium capitalize">—</p>
+                  <p class="text-sm text-slate-300">
+                    Feels like <span id="feels-like">—°</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col items-center sm:items-end">
+              <img id="weather-icon" src="" alt="" class="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-lg" />
+              <div class="flex gap-4 text-sm text-slate-300 mt-1">
+                <span class="flex items-center gap-1">
+                  <i data-lucide="arrow-up" class="w-3.5 h-3.5 text-orange-300"></i>
+                  <span id="temp-high">—°</span>
+                </span>
+                <span class="flex items-center gap-1">
+                  <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-sky-300"></i>
+                  <span id="temp-low">—°</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+            <div class="glass rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center shrink-0">
+                <i data-lucide="droplets" class="w-5 h-5 text-sky-300"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400">Humidity</p>
+                <p id="humidity" class="text-sm font-semibold">—%</p>
+              </div>
+            </div>
+            <div class="glass rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+                <i data-lucide="wind" class="w-5 h-5 text-emerald-300"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400">Wind</p>
+                <p id="wind" class="text-sm font-semibold">— m/s</p>
+              </div>
+            </div>
+            <div class="glass rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
+                <i data-lucide="gauge" class="w-5 h-5 text-violet-300"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400">Pressure</p>
+                <p id="pressure" class="text-sm font-semibold">— hPa</p>
+              </div>
+            </div>
+            <div class="glass rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                <i data-lucide="eye" class="w-5 h-5 text-amber-300"></i>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400">Visibility</p>
+                <p id="visibility" class="text-sm font-semibold">— km</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5-Day Forecast -->
+        <section>
+          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            5-Day Forecast
+          </h3>
+          <div id="forecast-container" class="forecast-scroll flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+            <!-- Forecast cards injected by JS -->
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-400/80">
+      Powered by OpenWeatherMap · Data updates in real time
+    </footer>
+  </div>
+
+  <!-- App logic -->
+  <script src="app.js"></script>
+</body>
+</html>
