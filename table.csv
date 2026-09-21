@@ -1,4 +1,0 @@
-File,Purpose
-index.html,"Structure, Tailwind CDN config, Lucide icons, links to CSS & JS"
-styles.css,"Glassmorphism, dynamic weather backgrounds, scrollbar, utilities"
-app.js,"API calls, geolocation, localStorage, rendering, theme, toasts"
